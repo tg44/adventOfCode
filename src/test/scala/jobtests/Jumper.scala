@@ -3,6 +3,7 @@ package jobtests
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.annotation.tailrec
+import scala.util.Try
 
 class Jumper extends WordSpecLike with Matchers {
 
@@ -24,7 +25,7 @@ class Jumper extends WordSpecLike with Matchers {
 
   }
 
-  def solve(input: Seq[Int]): Int = frontToBack(input.toList)
+  def solve(input: Seq[Int]): Int = backToFront(input.toList)
 
   def frontToBack(input: List[Int]): Int = {
 
@@ -62,6 +63,18 @@ class Jumper extends WordSpecLike with Matchers {
   }
 
   def backToFront(input: List[Int]): Int = {
-    ???
+    @tailrec
+    def rec(listIBuild: List[Int], listIConsume: List[Int], i: Int): Int = {
+      listIConsume match {
+        case Nil => listIBuild.head
+        case h :: tail if h == 0 => rec(0 :: listIBuild, tail, i+1)
+        case h :: tail if h > i => rec(1 :: listIBuild, tail, i+1)
+        case h :: tail =>
+          val s = Try(listIBuild.take(h).filter(_ != 0).min).toOption.map(_ + 1).getOrElse(0)
+          rec(s :: listIBuild, tail, i+1)
+      }
+    }
+
+    rec(List.empty, input.reverse, 0)
   }
 }
